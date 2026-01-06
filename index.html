@@ -341,6 +341,7 @@
                         hash: hash,
                         samples: 0,
                         totalRssi: 0,
+                        rssiCount: 0,
                         nodes: new Set()
                     };
                 }
@@ -348,6 +349,7 @@
                 coverage[hash].samples++;
                 if (sample.rssi) {
                     coverage[hash].totalRssi += sample.rssi;
+                    coverage[hash].rssiCount++;
                 }
                 if (sample.nodeId) {
                     coverage[hash].nodes.add(sample.nodeId);
@@ -384,9 +386,12 @@
                 
                 // Draw coverage squares
                 coverage.forEach(cell => {
-                    const avgRssi = cell.totalRssi / cell.samples;
+                    // Only calculate avg RSSI if we have RSSI values
+                    const avgRssi = cell.rssiCount > 0 ? cell.totalRssi / cell.rssiCount : null;
                     const bounds = geohashToBounds(cell.hash);
-                    const color = getQualityColor(avgRssi);
+                    
+                    // Default to gray if no RSSI data
+                    const color = avgRssi !== null ? getQualityColor(avgRssi) : '#888888';
                     
                     const rectangle = L.rectangle(bounds, {
                         color: color,
@@ -404,7 +409,7 @@
                     const popupContent = `
                         <div class="popup-content">
                             <div><span class="popup-label">Samples:</span><strong>${cell.samples}</strong></div>
-                            <div><span class="popup-label">Avg RSSI:</span>${avgRssi.toFixed(1)} dBm</div>
+                            <div><span class="popup-label">Avg RSSI:</span>${avgRssi !== null ? avgRssi.toFixed(1) + ' dBm' : 'N/A'}</div>
                             <div><span class="popup-label">Nodes:</span>${cell.nodes.size}</div>
                             <div><span class="popup-label">Repeaters:</span>${nodePrefixes || 'None'}</div>
                         </div>
