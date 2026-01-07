@@ -54,6 +54,7 @@ export async function onRequestPost(context) {
       longitude: sample.longitude || sample.lng,
       rssi: sample.rssi,
       snr: sample.snr,
+      pingSuccess: sample.pingSuccess,
       timestamp: sample.timestamp || new Date().toISOString(),
     }));
     

@@ -423,8 +423,28 @@
             return [[bounds.sw.lat, bounds.sw.lon], [bounds.ne.lat, bounds.ne.lon]];
         }
         
-        // Color based on RSSI quality
-        function getQualityColor(avgRssi) {
+        // Color based on ping success/failure (matching Android app logic)
+        function getCoverageColor(received, lost) {
+            if (received > 0 && lost === 0) {
+                // Perfect coverage - all pings heard
+                return '#00ff00'; // Bright green
+            } else if (received > 0 && lost > 0) {
+                // Mixed coverage - some heard, some lost
+                const ratio = received / (received + lost);
+                if (ratio >= 0.7) return '#88ff00';  // Yellow-green - mostly heard
+                if (ratio >= 0.4) return '#ffff00';  // Yellow - spotty
+                return '#ffaa00'; // Orange - poor
+            } else if (lost > 0) {
+                // Dead zone - pings sent but not heard
+                return '#ff0000'; // Red
+            } else {
+                // No pings attempted here (just tracked location)
+                return '#cccccc'; // Gray
+            }
+        }
+        
+        // Fallback: Color based on RSSI quality (if no ping data)
+        function getQualityColorFromRssi(avgRssi) {
             if (avgRssi >= -70) return '#00ff00'; // Excellent (green)
             if (avgRssi >= -85) return '#7fff00'; // Good (yellow-green)
             if (avgRssi >= -95) return '#ffff00'; // Fair (yellow)
@@ -449,6 +469,8 @@
                     coverage[hash] = {
                         hash: hash,
                         samples: 0,
+                        received: 0,  // Successful pings
+                        lost: 0,      // Failed pings
                         totalRssi: 0,
                         rssiCount: 0,
                         nodes: new Set()
@@ -456,6 +478,15 @@
                 }
                 
                 coverage[hash].samples++;
+                
+                // Track ping success/failure (like Android app)
+                // Check if sample has pingSuccess field or infer from nodeId/rssi
+                if (sample.pingSuccess === true || (sample.nodeId && sample.nodeId !== 'Unknown')) {
+                    coverage[hash].received++;
+                } else if (sample.pingSuccess === false || sample.nodeId === 'Unknown') {
+                    coverage[hash].lost++;
+                }
+                
                 // Convert RSSI to number and check if valid
                 const rssi = Number(sample.rssi);
                 if (!isNaN(rssi) && rssi !== 0) {
@@ -510,8 +541,8 @@
                     const avgRssi = cell.rssiCount > 0 ? cell.totalRssi / cell.rssiCount : null;
                     const bounds = geohashToBounds(cell.hash);
                     
-                    // Default to gray if no RSSI data
-                    const color = avgRssi !== null ? getQualityColor(avgRssi) : '#888888';
+                    // Use ping success/failure logic (matching Android app)
+                    const color = getCoverageColor(cell.received, cell.lost);
                     
                     const rectangle = L.rectangle(bounds, {
                         color: color,
@@ -529,6 +560,7 @@
                     const popupContent = `
                         <div class="popup-content">
                             <div><span class="popup-label">Samples:</span><strong>${cell.samples}</strong></div>
+                            <div><span class="popup-label">Received:</span><strong style="color: #00ff00">${cell.received}</strong> / Lost: <strong style="color: #ff0000">${cell.lost}</strong></div>
                             <div><span class="popup-label">Avg RSSI:</span>${avgRssi !== null ? avgRssi.toFixed(1) + ' dBm' : 'N/A'}</div>
                             <div><span class="popup-label">Nodes:</span>${cell.nodes.size}</div>
                             <div><span class="popup-label">Repeaters:</span>${nodePrefixes || 'None'}</div>
