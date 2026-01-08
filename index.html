@@ -591,13 +591,20 @@
                     const successRate = total > 0 ? ((cell.received / total) * 100).toFixed(0) : 'N/A';
                     const reliabilityText = total > 0 ? `${successRate}%` : 'No ping data';
                     
-                    const popupContent = `
+                    let popupContent = `
                         <div class="popup-content">
                             <div><span class="popup-label">Samples:</span><strong>${cell.samples}</strong></div>
                             <div><span class="popup-label">Success Rate:</span><strong>${reliabilityText}</strong></div>
-                            <div><span class="popup-label">Received:</span><strong style="color: #00ff00">${cell.received}</strong> / Lost: <strong style="color: #ff0000">${cell.lost}</strong></div>
+                            <div><span class="popup-label">Received:</span><strong style="color: #00ff00">${cell.received}</strong> / Lost: <strong style="color: #ff0000">${cell.lost}</strong></div>`;
+                    
+                    // Only show repeater info if at least one ping was received
+                    if (cell.received > 0) {
+                        popupContent += `
                             <div><span class="popup-label">Repeaters Heard:</span><strong>${uniquePrefixes.length}</strong></div>
-                            <div><span class="popup-label">Repeater IDs:</span>${nodePrefixes || 'None'}</div>
+                            <div><span class="popup-label">Repeater IDs:</span>${nodePrefixes || 'None'}</div>`;
+                    }
+                    
+                    popupContent += `
                         </div>
                     `;
                     
