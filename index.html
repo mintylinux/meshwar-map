@@ -249,7 +249,7 @@
             <span class="stat-value" id="total-samples">0</span>
         </div>
         <div class="stat">
-            <span class="stat-label">Unique Nodes:</span>
+            <span class="stat-label">Unique Repeaters:</span>
             <span class="stat-value" id="unique-nodes">0</span>
         </div>
         <div class="stat">
@@ -597,8 +597,8 @@
                             <div><span class="popup-label">Samples:</span><strong>${cell.samples}</strong></div>
                             <div><span class="popup-label">Success Rate:</span><strong>${reliabilityText}</strong></div>
                             <div><span class="popup-label">Received:</span><strong style="color: #00ff00">${cell.received}</strong> / Lost: <strong style="color: #ff0000">${cell.lost}</strong></div>
-                            <div><span class="popup-label">Nodes:</span>${cell.nodes.size}</div>
-                            <div><span class="popup-label">Repeaters:</span>${nodePrefixes || 'None'}</div>
+                            <div><span class="popup-label">Repeaters Heard:</span><strong>${cell.nodes.size}</strong></div>
+                            <div><span class="popup-label">Repeater IDs:</span>${nodePrefixes || 'None'}</div>
                         </div>
                     `;
                     
