@@ -689,12 +689,8 @@
                     measureLayer.addLayer(measureLine);
                     updateMeasureDisplay();
                     
-                    // Auto-deactivate after measurement
-                    setTimeout(() => {
-                        if (measureActive) {
-                            toggleMeasure();
-                        }
-                    }, 100);
+                    // Keep measurement active - user can manually cancel or start new measurement
+                    // Clicking the button again will clear and allow new measurement
                 }
             }
         });
