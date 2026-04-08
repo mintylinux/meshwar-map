@@ -136,9 +136,12 @@ function aggregateSamples(samples) {
       };
     }
 
+    // Skip GPS-only samples (no ping attempted)
+    if (sample.pingSuccess === null || sample.pingSuccess === undefined) return;
+    
     const success = sample.pingSuccess === true ||
                    (sample.nodeId && sample.nodeId !== 'Unknown');
-    const failed = sample.pingSuccess === false || sample.nodeId === 'Unknown';
+    const failed = sample.pingSuccess === false;
 
     if (sample.appVersion && sample.timestamp >= coverage[hash].lastUpdate) {
       coverage[hash].appVersion = sample.appVersion;
