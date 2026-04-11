@@ -206,6 +206,9 @@ function renderVisibleCoverage() {
         // Expiry filter: hide cells older than 90 days
         if (ageInDays(cell.lastUpdate) > EXPIRY_DAYS) return;
 
+        // Skip cells with no actual ping data (GPS-only uploads)
+        if ((cell.received + cell.lost) === 0) return;
+
         const bounds = geohashToBounds(hash);
         const cellBounds = L.latLngBounds(bounds);
 
@@ -278,6 +281,9 @@ function aggregateAtPrecision(coverage, targetPrecision) {
     Object.entries(coverage).forEach(([hash, cell]) => {
         // Expiry filter: skip cells older than 90 days
         if (ageInDays(cell.lastUpdate) > EXPIRY_DAYS) return;
+
+        // Skip cells with no actual ping data
+        if ((cell.received + cell.lost) === 0) return;
 
         // Time-lapse filter for aggregation
         if (timelapseActive && timelapseDate) {
