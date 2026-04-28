@@ -79,6 +79,14 @@ map.on('popupopen', (e) => {
 updateMapTiles();
 updateThemeIcon();
 
+// Center on user's location if available
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+        (pos) => map.setView([pos.coords.latitude, pos.coords.longitude], 12),
+        () => {} // Silently fall back to default center (Seattle)
+    );
+}
+
 // ---------------------
 // Layer groups
 // ---------------------
