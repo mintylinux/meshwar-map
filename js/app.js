@@ -36,18 +36,12 @@ function updateThemeIcon() {
 function updateMapTiles() {
     if (tileLayer) map.removeLayer(tileLayer);
 
-    if (isDarkTheme) {
-        tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 19
-        });
-    } else {
-        tileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19
-        });
-    }
+    // Use OSM tiles for both themes — dark mode applies CSS filter
+    tileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+        className: isDarkTheme ? 'dark-tiles' : ''
+    });
 
     tileLayer.addTo(map);
 }
@@ -144,7 +138,12 @@ function getCoverageColor(received, lost) {
     const total = received + lost;
     if (total === 0) return '#cccccc';
 
-    const rate = received / total;
+    let rate = received / total;
+
+    // Floor: if a cell has ANY confirmed coverage, never show worse than yellow.
+    // A cell that has been reached at least once is not a true dead zone.
+    if (received > 0 && rate < 0.30) rate = 0.30;
+
     if (rate >= 0.80) return '#00ff00';
     if (rate >= 0.50) return '#88ff00';
     if (rate >= 0.30) return '#ffff00';

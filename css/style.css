@@ -713,3 +713,8 @@ body.light-theme .timelapse-btn:hover {
         min-width: calc(100vw - 40px);
     }
 }
+
+/* Dark mode tile filter - inverts OSM tiles to dark theme */
+.dark-tiles {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
