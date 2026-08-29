@@ -35,7 +35,9 @@ git push -u origin main
 ```
 
 ### 3. Deploy to Cloudflare Pages
+Choose **one** of the following methods:
 
+#### Option A: Cloudflare Dashboard (Easiest)
 1. Go to https://dash.cloudflare.com/
 2. Click **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**
 3. Select your GitHub repo: `meshcore-map`
@@ -44,9 +46,7 @@ git push -u origin main
    - **Production branch**: `main`
    - **Build settings**: None needed (static site)
 5. Click **Save and Deploy**
-
-### 4. Set Up KV Storage
-
+Then set up KV:
 1. In Cloudflare dashboard, go to **Workers & Pages** → **KV**
 2. Click **Create a namespace**
 3. Name it: `WARDRIVE_DATA`
@@ -55,6 +55,32 @@ git push -u origin main
    - **Variable name**: `WARDRIVE_DATA`
    - **KV namespace**: Select the one you just created
 6. Click **Save**
+#### Option B: Wrangler CLI (Recommended for developers)
+
+```bash
+# Install Wrangler
+npm install -g wrangler
+
+# Login to Cloudflare
+wrangler login
+
+# Create KV namespace (copy the id from output)
+wrangler kv namespace create WARDRIVE_DATA
+
+# Update wrangler.toml with the KV namespace id from above
+
+# Create Pages project
+wrangler pages project create meshwar-map --production-branch main
+
+# Set admin token secret (for DELETE endpoint auth)
+wrangler pages secret put ADMIN_TOKEN --project-name meshwar-map
+
+# Deploy
+wrangler pages deploy . --project-name meshwar-map
+
+# Tail the Worker for errors 
+wrangler pages deployment tail --project-name meshwar-map
+```
 
 ### 5. Your Site is Live! 🎉
 

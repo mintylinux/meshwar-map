@@ -1,0 +1,16 @@
+# Cloudflare Pages configuration
+name = "meshwar-map"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "."
+
+# Pages Functions configuration
+[functions]
+directory = "functions"
+
+# KV Namespace bindings
+[[kv_namespaces]]
+binding = "WARDRIVE_DATA"
+id = "paste_from_cmd"
+
+# Environment variables (secrets - set via CLI)
+# ADMIN_TOKEN - set with: wrangler pages secret put ADMIN_TOKEN --project-name meshwar-map
